@@ -20,7 +20,7 @@ class App extends Component {
             Learn React
           </a>
           */}
-          <TodoList listData="finish this app" />
+          <TodoList />
         </header>
       </div>
     );

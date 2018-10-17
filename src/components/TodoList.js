@@ -4,37 +4,57 @@ import AddTodo from './AddTodo';
 class TodoList extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { listData : [] };
+    this.state = { listData : {} };
     this.clickHandler = this.clickHandler.bind(this);
   }
 
   componentDidMount() {
-    this.setState({listData : [this.props.listData]});
+    let localListData = window.localStorage.getItem('TodoApp-listData');
+    this.setState({ listData : (!!localListData) ? JSON.parse(localListData) : [] });
   }
 
-  clickHandler(newItem) {
+  handleCheck(key) {
     let updatedList = this.state.listData;
-    updatedList.push(newItem);
+    updatedList[key].checked = (updatedList[key].checked) ? false : true;
+    window.localStorage.setItem('TodoApp-listData', JSON.stringify(updatedList));
+    this.setState({...this.state, listData: updatedList});
+  }
+
+  clickHandler(newItem) { 
+    let updatedList = this.state.listData;
+    let key = updatedList.length;
+    let level = 0;
+    let itemObject = {
+      key : key,
+      value : newItem,
+      level : level,
+      checked : false
+    };
+    updatedList.push(itemObject);
+    window.localStorage.setItem('TodoApp-listData', JSON.stringify(updatedList));
     this.setState({...this.state, listData: updatedList});
   }
 
     render() {
       let items = this.state.listData;
       return (
-        <div>
+        <div className="todoApp">
           <div> 
             <h3>Todo List: </h3>
             { 
               (items.length > 0) ?
-                <ul> 
+                <div className="todoList"> 
                   {
                     items.map((data, index) =>
-                      <li key={index.toString()}>
-                        {data}
-                      </li>
+                      <div>
+                        <input type="checkbox" id={data.value} checked={data.checked} onChange={(e) => this.handleCheck(data.key)} />
+                        <div className={(data.checked) && "checked"} key={index.toString()}>
+                          {data.value}
+                        </div>
+                      </div>
                     )
                   }
-                </ul>
+                </div>
               :
                 <span>Your todo list is empty...</span>
             }
